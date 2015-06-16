@@ -1,0 +1,274 @@
+#pragma once
+#include <vector>
+#include <iostream>
+template <class LabelType>
+class Prim : public LinkedGraph<LabelType>
+{
+
+	template <class LabelType>
+	class PrimEdge
+	{
+	private:
+		LabelType startLabel;
+		Edge<LabelType> edge;
+		bool checked;
+	public:
+		PrimEdge(){}
+		PrimEdge(LabelType start, Edge<LabelType> ed){
+			startLabel = start; edge = ed; checked = false;
+		}
+
+		void setChecked(bool value){ checked = value; }
+		LabelType getStart()const { return startLabel; }
+		LabelType getEnd() const { return edge.getEndVertex(); }
+		int getWeight() const { return edge.getWeight(); }
+		bool isChecked() const { return checked; }
+
+		bool operator<(const PrimEdge &right)
+		{
+			return this->edge.getWeight() < right.getWeight();
+		}
+
+
+	};
+
+private:
+
+	vector<PrimEdge<LabelType>> minSpanTree;
+	vector<PrimEdge<LabelType>> orderedEdges;
+
+	void applyPrim();
+	bool notConnected(LabelType &end1, LabelType &end2);
+	void selectionSort(vector<PrimEdge<LabelType>> &array, int size);
+	void writeVector(ostream &os, vector<PrimEdge<LabelType>> &vect);
+
+public:
+	Prim(){}
+	~Prim(){}
+	void createMinSpanTree();
+	void writeMinSpanTree(ostream &os);
+	void writeOrderedEdges(ostream &os); // for debugging
+	bool add(LabelType start, LabelType end, int edgeWeight = 0)
+	{
+		if (LinkedGraph<LabelType>::add(start, end, edgeWeight))
+		{
+			Edge<LabelType> edge(end, edgeWeight);
+			PrimEdge<LabelType> newEdge(start, edge);
+			orderedEdges.push_back(newEdge);
+			return true;
+		}
+		return false;
+	}
+
+	bool remove(LabelType start, LabelType end)
+	{
+		vector<PrimEdge<LabelType>>::iterator iterElem;
+		for (iterElem = orderedEdges.begin(); iterElem != orderedEdges.end(); ++iterElem)
+		{
+			LabelType end1 = iterElem->getStart();
+			LabelType end2 = iterElem->getEnd();
+			if (start == end1 && end == end2 || start == end2 && end == end1){
+				orderedEdges.erase(iterElem);
+				break;
+			}
+		}
+		return LinkedGraph<LabelType>::remove(start, end);
+	}
+
+	void compareEdges(vector<PrimEdge<LabelType>> &edgeVect, LabelType targetVert, bool &found);
+	vector<PrimEdge<LabelType>> getNeighbor
+
+};
+
+
+template <class LabelType>
+void Prim<LabelType>::createMinSpanTree()
+{
+	selectionSort(orderedEdges, orderedEdges.size());
+	applyPrim();
+}
+
+template <class LabelType>
+void Prim<LabelType>::selectionSort(vector<PrimEdge<LabelType>> &array, int size)
+{
+	int startScan, minIndex;
+	PrimEdge<LabelType> temp;
+
+	// REST OF THE SELECTION SORT GOES HERE
+	for (int startScan = 0; startScan < size - 1; startScan++)
+	{
+		for (int minIndex = startScan + 1; minIndex < size; minIndex++)
+		{
+			if (array[minIndex].getWeight() < array[startScan].getWeight())
+				temp = array[startScan];
+			array[startScan] = array[minIndex];
+			array[minIndex] = temp;
+		}
+	}
+}
+
+
+template <class LabelType>
+void Prim<LabelType>::writeMinSpanTree(ostream &os)
+{
+	writeVector(os, minSpanTree);
+}
+
+template <class LabelType>
+void Prim	//office = myGraph.findOrCreateVertex(office);
+<LabelType>::writeOrderedEdges(ostream &os)
+{
+	writeVector(os, orderedEdges);
+}
+// private functions:
+
+template <class LabelType>
+void Prim<LabelType>::applyPrim(vector<Vertex<LabelType>>* v, vector<Vertex<LabelType>>* u)
+{
+
+	int totalCost = 0;	//Declare the total cost = 0
+
+	if (minSpanTree.size() > 0)
+	{
+		minSpanTree.clear();		//Clear the min spanning tree
+	}
+
+	//v = unvisit(); 
+	//// reset this graph
+
+	int numEdges = orderedEdges.size();
+	int edgeCount = 0;
+
+	v.visit();	//Mark as visited 
+
+	minSpanTree.add(v);
+
+	while (!v.getNextNeighbor.isVisited()) //look for unvisited vertices
+	{
+		//call selectionSort
+		selectionSort(v, numEdges);
+
+		int minWeight = minSpanTree.getEdgeWeight(u, v);
+		//get the min edge
+
+		u.visit();
+		//Mark as visited
+
+		minSpanTree.add(u, v, minWeight);
+		//add edge u,v to the min spanning tree
+
+		totalCost += minWeight;
+		//Calc the total cost of the weight
+	}
+}
+template <class LabelType>
+bool Prim<LabelType>::compareEdges(vector<PrimEdge<LabelType>> &edgeVect, <LabelType> targetVert, bool &found){				// compares the edges surrounding the current verticies 
+
+	// talks with the linked stack
+
+	for (int i = 0;
+
+		edgeVect < targetVect
+
+		// also compare the vertices of other edges surrounding so it re
+}
+
+
+
+// checks if end1 is already connected to end2 in the minimum spanning tree so far
+template <class LabelType>
+bool  Prim<LabelType>::notConnected(LabelType &end1, LabelType &end2)
+{
+	for (int i = 0; i < minSpanTree.size(); ++i)
+	{
+		// THIS IS REALLY DIFFICULT, BUT NOT SHOWN BECAUSE YOU MAY HAVE
+		//    SIMILAR ALGORITHMS THAT NEED THIS
+		// ETC.
+	}
+	return true;
+}
+
+template <class LabelType>
+void Prim<LabelType>::writeVector(ostream &os, vector<Prim<LabelType>> &vect)
+{
+	int size = vect.size();
+	for (int i = 0; i < size; ++i){
+		PrimEdge<LabelType> edge = vect[i];
+		os << "From " << edge.getStart() << " to " << edge.getEnd()
+			<< " with weight = " << edge.getWeight() << endl;
+	}
+}
+
+
+
+
+
+/*
+
+
+unvisitVertices();		// reset the graph per application of algorithm
+minSpanTree[0].visit()	// mark 0 as the starting point of the vertex and set as visited
+
+for (int i = 0; i < numberOfVertices - 1; ++i){
+for (int i = 0; i < minSpanTree.size(); ++i){				// first check if visited
+minSpanTree[i].setChecked(false);
+}
+while(      ){			// while there are unvisited vertices
+
+
+//to check lowest cost edge,
+// for (int i = 0; i < .getNumEdges()-1; i++){
+minIndex = i;
+
+for (int j = 0; j < .getNumEdges(); j++){
+if( [j].getWeight() < [minIndex].getWeight() ){
+minIndex = j;
+
+} //if
+
+} //for j
+
+} //for i
+
+}
+
+
+}
+
+*/
+
+
+//primsAlgorithm(v:Vertex)
+//	Mark vertex v as visited and include it in the minimum spanning tree
+//while (there are unvisited vertices){
+//	Find the least - cost Edge(v, u) from a visited vertex v to some
+//		unvisited vertex u
+//		Mark u as visited
+//		Add the vertex u and the edge(v, u) to the minimum spanning tree
+//}
+
+
+
+
+
+
+
+
+//template <class LabelType>
+//void Prim<LabelType>::selectionSort(vector<PrimEdge<LabelType>> & array, int size){
+//	
+//	int startScan, minIndex;
+//	PrimEdge<LabelType> minValue;
+//
+//	/*
+//	1. Sort by non decreasing weight (cost of edge line)
+//	2. Select the smallest edge(cheapest network line)
+//	3. Lopp until (v-1) edges in tree
+//	
+//	
+//
+//
+//
+//	*/
+//
+//}
